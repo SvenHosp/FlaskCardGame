@@ -7,7 +7,7 @@ import game
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
 global card_game
-card_game = game.game_engine()
+card_game = game.card_engine()
 
 def trigger_prop_to_dict(trigger_prop):
     import json
