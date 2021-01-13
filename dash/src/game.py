@@ -61,10 +61,12 @@ class user():
         self.name = name
         self.card_list = []
 
+    def push_card(self, card):
+        self.card_list.append(card)
 
     def push_cards(self, card_list):
         for _card in card_list:
-            self.card_list.append(_card)
+            self.push_card(_card)
 
     def get_card_list(self):
         return self.card_list
@@ -85,30 +87,37 @@ class user():
                 __card = _card
                 continue
         self.card_list.remove(__card)
+
+
 class card_engine():
     def __init__(self) -> None:
         super().__init__()
         self.user_list = []
         self.card_stack_list = []
+        self.stich = []
+        self.chat = []
+    
+    def card_stack_empty(self):
+        return len(self.card_stack_list) == 0
     
     def create_card_stack(self):
         import secrets
         stack_unmixed_type = [
             {
                 'color': 'blue',
-                'number': 10
+                'number': 9
             },
             {
                 'color': 'green',
-                'number': 10
+                'number': 9
             },
             {
                 'color': 'yellow',
-                'number': 10
+                'number': 9
             },
             {
                 'color': 'red',
-                'number': 10
+                'number': 9
             },
             {
                 'color': 'black',
@@ -134,9 +143,7 @@ class card_engine():
         for i in range(0, total_number_cards):
             index = secrets.randbelow(len(stack_unmixed))
 
-            _card = stack_unmixed[index]
-
-            stack_unmixed.pop(index)
+            _card = stack_unmixed.pop(index)
 
             stack_mixed.append(_card)
 
@@ -155,8 +162,10 @@ class card_engine():
         return None
     
     def distribute_cards(self):
+        cards_per_user = len(self.card_stack_list)/len(self.user_list)
         for _user in self.user_list:
-            _user.push_cards(self.card_stack_list)
+            for index in range(0,cards_per_user):
+                _user.push_card(self.card_stack_list.pop(index))
 
     def get_card_list(self, username):
         for _user in self.user_list:
@@ -179,4 +188,20 @@ class card_engine():
             if username == _user.name:
                 _user.remove_card(value, bg_color)
 
+    def create_stich(self):
+        self.stich = []
+    
+    def card_to_stich(self, card):
+        self.stich.append(card)
 
+    def get_stich(self):
+        return self.stich
+
+    def create_chat(self):
+        self.chat = []
+    
+    def add_message_to_chat(self, username, message):
+        self.chat.append("{username}: {message}".format(username=username, message=message))
+
+    def get_chat(self):
+        return self.chat

@@ -9,6 +9,8 @@ app = dash.Dash(__name__, suppress_callback_exceptions=True)
 global card_game
 card_game = game.card_engine()
 
+"""
+
 def trigger_prop_to_dict(trigger_prop):
     import json
 
@@ -45,8 +47,54 @@ def generate_card_representations(username):
             )
             i = i + 1
     return container_list
-
+"""
 app.layout = html.Div([
+    html.H1(children='Card Board'),
+    dcc.Interval(
+        id='intervalComponent',
+        interval=1*1000, # in milliseconds
+        n_intervals=0
+    ),
+    dcc.Tabs([
+        dcc.Tab(label='Board', children=[
+            html.Div(id='game_board', children=[
+                html.Div(id='player', children=''),
+                html.Div(id='cards', children=''),
+                html.Div(id='stich', children='')
+            ])
+        ]),
+        dcc.Tab(label='Admin', children=[
+            html.Div(id='admin_board', children=[
+                html.Button('create card stack', id='button_card_stack', n_clicks=0),
+                html.Div(id='div_card_stack_hidden', style={'display':'none'}),
+                html.Div(id='div_card_stack', children='klick to create and mix card stack')
+            ])
+        ])
+    ])
+])
+
+@app.callback(
+    Output('div_card_stack', 'children'),
+    [
+        Input('intervalComponent', 'n_intervals')
+    ])
+def create_user(n):
+    if not card_game.card_stack_empty():
+        return 'card stack is created'
+    else:
+        return 'card stack is empty'
+
+@app.callback(
+    Output('div_card_stack_hidden', 'children'),
+    [
+        Input('button_card_stack', 'n_clicks')
+    ])
+def create_user(n_clicks):
+    if n_clicks >= 1:
+        card_game.create_card_stack()
+        return 'hidden'
+
+"""
     html.Div(id='user-formular', children=[
         dcc.Input(
             id='input-box',
@@ -103,6 +151,6 @@ def update_output(n_clicks1, n_clicks2, value, username):
             print(trigger)
 
     return generate_card_representations(username)
-
+"""
 if __name__ == '__main__':
     app.run_server(debug=True)
