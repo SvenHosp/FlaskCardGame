@@ -3,6 +3,10 @@ class card():
         self.value = value
         self.bg_color = bg_color
         self.text_color = text_color
+        self.username = ''
+
+    def set_username(self, username):
+        self.username = username
 
     def get_possible_card_color_list():
         return [
@@ -87,6 +91,7 @@ class user():
                 __card = _card
                 continue
         self.card_list.remove(__card)
+        return __card
 
 
 class card_engine():
@@ -94,11 +99,24 @@ class card_engine():
         super().__init__()
         self.user_list = []
         self.card_stack_list = []
+        self.stich_open = False
         self.stich = []
         self.chat = []
     
+    def set_stich_state(self, bool):
+        self.stich_open = bool
+    
+    def is_stich_open(self):
+        return self.stich_open
+    
     def card_stack_empty(self):
         return len(self.card_stack_list) == 0
+    
+    def cards_distributed(self):
+        if len(self.user_list) > 0 and len(self.user_list[0].get_card_list()) > 0:
+            return True
+        else:
+            return False
     
     def create_card_stack(self):
         import secrets
@@ -160,14 +178,25 @@ class card_engine():
             if _user.name == name:
                 return _user
         return None
+
+    def get_usernames(self):
+        usernames = None
+        for _user in self.user_list:
+            if usernames is not None:
+                usernames = usernames + ',' + _user.name
+            else:
+                usernames = _user.name
+        return usernames
     
     def distribute_cards(self):
-        cards_per_user = len(self.card_stack_list)/len(self.user_list)
+        import math
+        cards_per_user = math.ceil(len(self.card_stack_list)/len(self.user_list))
         for _user in self.user_list:
             for index in range(0,cards_per_user):
-                _user.push_card(self.card_stack_list.pop(index))
+                if len(self.card_stack_list) > 0:
+                    _user.push_card(self.card_stack_list.pop(0))
 
-    def get_card_list(self, username):
+    def get_card_list_for_user(self, username):
         for _user in self.user_list:
             if username == _user.name:
                 return _user.get_card_list()
@@ -184,9 +213,12 @@ class card_engine():
                 _user.remove_card(_card)
     
     def remove_card(self, username, value, bg_color):
+        card = None
         for _user in self.user_list:
             if username == _user.name:
-                _user.remove_card(value, bg_color)
+                card = _user.remove_card(value, bg_color)
+                card.set_username(username)
+        return card
 
     def create_stich(self):
         self.stich = []
