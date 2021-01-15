@@ -1,11 +1,15 @@
 Build docker image with:
 
-'''
+.build docker image
+[source,bash]
+----
 docker build -t card_board .
-'''
+----
 
 After building Docker Container run it with:
 
-'''
+.run docker image
+[source,bash]
+----
 docker run --rm -p 8050:8050 --name playing_cards card_board
-'''
+----
