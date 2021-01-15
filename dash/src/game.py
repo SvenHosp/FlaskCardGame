@@ -190,11 +190,12 @@ class card_engine():
     
     def distribute_cards(self):
         import math
-        cards_per_user = math.ceil(len(self.card_stack_list)/len(self.user_list))
-        for _user in self.user_list:
-            for index in range(0,cards_per_user):
-                if len(self.card_stack_list) > 0:
-                    _user.push_card(self.card_stack_list.pop(0))
+        if len(self.user_list) > 0:
+            cards_per_user = math.ceil(len(self.card_stack_list)/len(self.user_list))
+            for _user in self.user_list:
+                for index in range(0,cards_per_user):
+                    if len(self.card_stack_list) > 0:
+                        _user.push_card(self.card_stack_list.pop(0))
 
     def get_card_list_for_user(self, username):
         for _user in self.user_list:
@@ -237,3 +238,12 @@ class card_engine():
 
     def get_chat(self):
         return self.chat
+
+    def get_chat_formated(self):
+        chat_formated = None
+        for msg in self.chat:
+            if not chat_formated:
+                chat_formated = msg
+            else:
+                chat_formated = chat_formated + '\n' + msg
+        return chat_formated

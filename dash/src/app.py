@@ -39,7 +39,7 @@ def generate_card_representations(username):
                         'bg_color': _card.bg_color
                     },
                     value=str(_card.value),
-                    style={'width': 50, 'height': 200, 'backgroundColor': _card.bg_color, 'color': _card.text_color, 'textAlign': 'center', 'fontSize': 20},
+                    style={'width': 50, 'height': 100, 'backgroundColor': _card.bg_color, 'color': _card.text_color, 'textAlign': 'center', 'fontSize': 20},
                     readOnly=True,
                     n_clicks=0,
                 )
@@ -62,7 +62,7 @@ def generate_stich_representations():
                         'bg_color': _card.bg_color
                     },
                     value=_card.username + ':\n' + str(_card.value),
-                    style={'width': 50, 'height': 200, 'backgroundColor': _card.bg_color, 'color': _card.text_color, 'textAlign': 'center', 'fontSize': 20},
+                    style={'width': 50, 'height': 100, 'backgroundColor': _card.bg_color, 'color': _card.text_color, 'textAlign': 'center', 'fontSize': 20},
                     readOnly=True,
                     n_clicks=0,
                 )
@@ -93,14 +93,37 @@ app.layout = html.Div([
                 ]),
                 html.Div(id='cards', children=''),
                 html.Div(id='cards_hidden', style={'display':'none'}),
-                html.Div(id='stich_board', children=[
-                    html.Button('Open Stich', id='button-stich-open', n_clicks=0),
-                    html.Div(id='stich-open_hidden', style={'display':'none'}),
-                    html.Button('close Stich', id='button-stich-close', n_clicks=0),
-                    html.Div(id='stich-close_hidden', style={'display':'none'}),
-                    html.Div(id='div_stich-status', children=''),
-                    html.Div(id='stich_field', children='')
-                ])
+                html.Table(id='table', children=[
+                    html.Tr(id='row', children=[
+                        html.Td(id='td_chat', children=[
+                            html.Div(id='div_chat_desc', children='enter your hint and press button hint:'),
+                            dcc.Input(
+                                id='input_chat',
+                                placeholder='Enter your hint...',
+                                type='text',
+                                value=''
+                            ),
+                            html.Button('push hint', id='button_push_hint', n_clicks=0),
+                            html.Div(id='button_push_hint_hidden', style={'display':'none'}),
+                            html.Button('start/clear hints', id='button_reset_hints', n_clicks=0),
+                            html.Div(id='button_reset_hints_hidden', style={'display':'none'}),
+                            html.Div(id='hint_format_field', children=[
+                                dcc.Textarea(id='textarea_hint', value='')
+                            ])
+                        ]),
+                        html.Td(id='td_stich', children=[
+                            html.Div(id='stich_board', children=[
+                                html.Button('Open Stich', id='button-stich-open', n_clicks=0),
+                                html.Div(id='stich-open_hidden', style={'display':'none'}),
+                                html.Button('close Stich', id='button-stich-close', n_clicks=0),
+                                html.Div(id='stich-close_hidden', style={'display':'none'}),
+                                html.Div(id='div_stich-status', children=''),
+                                html.Div(id='stich_field', children='')
+                            ])
+                        ])
+                    ])
+                ]),
+                
             ])
         ]),
         dcc.Tab(label='Admin', children=[
@@ -253,63 +276,31 @@ def restart_game(n_clicks):
         card_game = game.card_engine()
     return 'hidden'
 
-"""
-    html.Div(id='user-formular', children=[
-        dcc.Input(
-            id='input-box',
-            placeholder='Enter your name...',
-            type='text',
-            value=''
-        ),
-        html.Button('Submit', id='button', n_clicks=0),
-        html.Div(id='username-div',
-             children='Enter your name and press submit')
-    ]),
-    html.Div(id='management-formular', children=[
-        html.Button('start game', id='button_start_game', n_clicks=0),
-    ]),
-    html.Div(id='dynamic-cards-container', children=generate_card_representations(''))
-])
+@app.callback(
+    Output('button_reset_hints_hidden', 'children'),
+    [Input('button_reset_hints', 'n_clicks')])
+def restart_game(n_clicks):
+    card_game.create_chat()
+    return 'hidden'
 
 @app.callback(
-    Output('username-div', 'children'),
-    [Input('button', 'n_clicks')],
-    [State('input-box', 'value')])
-def create_user(n_clicks, value):
-    if n_clicks >= 1:
-        card_game.create_user(value)
-        card_game.distribute_cards()
-        return 'Now you can start your game.'
-
+    Output('button_push_hint_hidden', 'children'),
+    [Input('button_push_hint', 'n_clicks')],
+    [
+        State('input_chat','value'),
+        State('input-username', 'value')
+    ])
+def restart_game(n_clicks, msg, username):
+    card_game.add_message_to_chat(username, msg)
+    return 'hidden'
 
 @app.callback(
-    Output('dynamic-cards-container', 'children'),
+    Output('textarea_hint', 'value'),
     [
-        Input({'type': 'card_Textarea', 'index': ALL, 'card_value': ALL, 'bg_color': ALL}, 'n_clicks'),
-        Input('button_start_game', 'n_clicks')
-    ],
-    [
-        State({'type': 'card_Textarea', 'index': ALL, 'card_value': ALL, 'bg_color': ALL}, 'value'),
-        State('input-box','value')
-    ]
-)
-def update_output(n_clicks1, n_clicks2, value, username):
-    # n_clicks is a list!!!!! of elements
-    trigger = None
-    for t in dash.callback_context.triggered:
-        trigger = t
-        continue
-    
-    if trigger['value'] is not None:
-        if trigger['prop_id'].find('button_start_game') == -1:
-            trigger_dict = trigger_prop_to_dict(trigger)
-            print(username)
-    
-            card_game.remove_card(username, trigger_dict['card_value'], trigger_dict['bg_color'])
-        else:
-            print(trigger)
+        Input('intervalComponent', 'n_intervals')
+    ])
+def update_stich_field(n):
+    return card_game.get_chat_formated()
 
-    return generate_card_representations(username)
-"""
 if __name__ == '__main__':
     app.run_server(debug=True)
