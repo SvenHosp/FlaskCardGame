@@ -303,4 +303,4 @@ def update_stich_field(n):
     return card_game.get_chat_formated()
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host='0.0.0.0', debug=True)
