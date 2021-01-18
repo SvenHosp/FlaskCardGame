@@ -74,7 +74,7 @@ app.layout = html.Div([
     html.H1(children='Card Board'),
     dcc.Interval(
         id='intervalComponent',
-        interval=0.5*1000, # in milliseconds
+        interval=1*1000, # in milliseconds
         n_intervals=0
     ),
     dcc.Tabs([

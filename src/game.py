@@ -90,7 +90,9 @@ class user():
             if _card.value == value and _card.bg_color == bg_color:
                 __card = _card
                 continue
-        self.card_list.remove(__card)
+        
+        if __card in self.card_list:
+            self.card_list.remove(__card)
         return __card
 
 
