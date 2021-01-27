@@ -3,8 +3,15 @@ from dash.dependencies import Input, Output, State, MATCH, ALL
 import dash_html_components as html
 import dash_core_components as dcc
 import game
+import os
 
-app = dash.Dash(__name__, suppress_callback_exceptions=True)
+# read URL base path from environment
+urlbase = os.getenv('URL_BASE_PATH', default='/')
+# Dash requires it to end with slash. Thus, make sure it does.
+if not urlbase.endswith('/'):
+    urlbase = urlbase +'/'
+
+app = dash.Dash(__name__, suppress_callback_exceptions=True, url_base_pathname=urlbase)
 
 global card_game
 card_game = game.card_engine()
